@@ -26,3 +26,9 @@ def all_distances_unique(points):
   pairs = list(itertools.combinations(points, 2))
   unique_distances = {distance_squared(pair[0], pair[1]) for pair in pairs}
   return len(unique_distances) == len(pairs)
+
+def print_square_grid(points, side_length):
+  grid = [["[ ]" for _ in range(side_length)] for _ in range(side_length)]
+  for point in points:
+    grid[point.x][point.y] = "[O]"
+  return '\n'.join(''.join(row) for row in grid)
