@@ -1,4 +1,6 @@
 # https://think-maths.co.uk/uniquedistance
+import itertools
+
 class Point:
   def __init__(self, x, y):
     self.x = x
@@ -10,6 +12,12 @@ class Point:
   def __lt__(self, other):
     return self.y < other.y or (self.y == other.y and self.x < other.x)
 
+  def __repr__(self):
+    return "({},{})".format(self.x, self.y)
+
 def distance_squared(point1, point2):
   return (point2.x - point1.x)**2 + (point2.y - point1.y)**2
 
+def all_distances_squared(points):
+  pairs = list(itertools.combinations(points, 2))
+  return [distance_squared(pair[0], pair[1]) for pair in pairs]
