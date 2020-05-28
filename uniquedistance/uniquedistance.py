@@ -19,14 +19,16 @@ class Point:
 def distance_squared(point1, point2):
   return (point2.x - point1.x)**2 + (point2.y - point1.y)**2
 
-def all_distances_squared(points):
-  pairs = list(itertools.combinations(points, 2))
-  return [distance_squared(pair[0], pair[1]) for pair in pairs]
+def all_pairs(points):
+  return list(itertools.combinations(points, 2))
+
+def unique_distances_squared(point_pairs):
+  return {distance_squared(pair[0], pair[1]) for pair in point_pairs}
 
 def all_distances_unique(points):
-  pairs = list(itertools.combinations(points, 2))
-  unique_distances = {distance_squared(pair[0], pair[1]) for pair in pairs}
-  return len(unique_distances) == len(pairs)
+  point_pairs = all_pairs(points)
+  unique_distances = unique_distances_squared(point_pairs)
+  return len(unique_distances) == len(point_pairs)
 
 def square_grid(points, side_length):
   grid = [['[ ]' for _ in range(side_length)] for _ in range(side_length)]
@@ -45,10 +47,14 @@ def main():
   possible_coin_placements = itertools.combinations(possible_points, args.size)
 
   for coin_placement in possible_coin_placements:
-    if all_distances_unique(coin_placement):
+    # We don't actually call all_distances_unique() to avoid duplicating work,
+    # since we want to cache the distances themselves for debugging.
+    point_pairs = all_pairs(coin_placement)
+    unique_distances = unique_distances_squared(point_pairs)
+    if len(unique_distances) == len(point_pairs):
       print(square_grid(coin_placement, args.size))
       print()
-      print(all_distances_squared(coin_placement))
+      print(unique_distances)
       print()
 
 if __name__ == "__main__":
