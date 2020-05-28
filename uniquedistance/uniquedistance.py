@@ -1,4 +1,5 @@
 # https://think-maths.co.uk/uniquedistance
+import argparse
 import itertools
 
 class Point:
@@ -27,8 +28,29 @@ def all_distances_unique(points):
   unique_distances = {distance_squared(pair[0], pair[1]) for pair in pairs}
   return len(unique_distances) == len(pairs)
 
-def print_square_grid(points, side_length):
-  grid = [["[ ]" for _ in range(side_length)] for _ in range(side_length)]
+def square_grid(points, side_length):
+  grid = [['[ ]' for _ in range(side_length)] for _ in range(side_length)]
   for point in points:
-    grid[point.x][point.y] = "[O]"
+    grid[point.x][point.y] = '[O]'
   return '\n'.join(''.join(row) for row in grid)
+
+def main():
+  parser = argparse.ArgumentParser(description="Find all possible placements of coins in a square grid of side length 'size' such that all pairwise distances between coins are unique.")
+  parser.add_argument("coins", type=int, help="Number of coins.")
+  parser.add_argument("size", type=int, help="The side length of the square grid.")
+  args = parser.parse_args()
+  print("Computing {0} coin placements for a {1}x{1} square...".format(args.coins, args.size))
+
+  possible_points = [Point(x, y) for x in range(args.size) for y in range(args.size)]
+  possible_coin_placements = itertools.combinations(possible_points, args.size)
+
+  for coin_placement in possible_coin_placements:
+    if all_distances_unique(coin_placement):
+      print(square_grid(coin_placement, args.size))
+      print()
+      print(all_distances_squared(coin_placement))
+      print()
+
+if __name__ == "__main__":
+  main()
+
