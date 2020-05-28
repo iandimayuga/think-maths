@@ -21,3 +21,8 @@ def distance_squared(point1, point2):
 def all_distances_squared(points):
   pairs = list(itertools.combinations(points, 2))
   return [distance_squared(pair[0], pair[1]) for pair in pairs]
+
+def all_distances_unique(points):
+  pairs = list(itertools.combinations(points, 2))
+  unique_distances = {distance_squared(pair[0], pair[1]) for pair in pairs}
+  return len(unique_distances) == len(pairs)
