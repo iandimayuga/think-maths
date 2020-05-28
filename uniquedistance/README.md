@@ -1,7 +1,13 @@
 
 Brute force solution to [Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance) without regard for symmetry.
 
-Refinements I may attempt:
+1. Grab all possible combinations of points in the square.
+2. Compute pairwise distances between each of the points. Using squared-distances is sufficient to find duplicates, no need for square root.
+3. Pop the distances into a set to find duplicates.
+4. Print the squares that don't have duplicate distances
+5. Print the (squared) distances too for debugging
+
+Refinements I may get to eventually:
 - Eliminate duplicates via symmetry
 - Use a depth-first culling approach to quickly short-circuit failed squares (i.e. squares that gave it a go)
 
