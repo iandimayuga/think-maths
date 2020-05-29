@@ -44,7 +44,7 @@ def main():
   print("Computing {0} coin placements for a {1}x{1} square...".format(args.coins, args.size))
 
   possible_points = [Point(x, y) for x in range(args.size) for y in range(args.size)]
-  possible_coin_placements = itertools.combinations(possible_points, args.size)
+  possible_coin_placements = itertools.combinations(possible_points, args.coins)
 
   for coin_placement in possible_coin_placements:
     # We don't actually call all_distances_unique() to avoid duplicating work,
