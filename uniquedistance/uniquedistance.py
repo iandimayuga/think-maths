@@ -22,70 +22,75 @@ class Point:
 def distance_squared(point1, point2):
   return (point2.x - point1.x)**2 + (point2.y - point1.y)**2
 
-# Generates all pairs between a list of points.
-def all_pairs(points):
-  return list(itertools.combinations(points, 2))
+# Square grid with a set of marked points.
+# Grid markings are considered equal if they are symmetrically equivalent.
+class Grid:
+  def __init__(self, side_length, points):
+    self.side_length = side_length
+    self.points = points
 
-# Returns the unique pairwise squared distances between points.
-def unique_distances_squared(point_pairs):
-  return {distance_squared(pair[0], pair[1]) for pair in point_pairs}
+  # Generates a string displaying a set of points marked in a square grid.
+  # Example output:
+  # [O][ ][ ]
+  # [ ][O][ ]
+  # [ ][ ][O]
+  def __repr__(self):
+    grid = [['[ ]' for _ in range(self.side_length)] for _ in range(self.side_length)]
+    for point in self.points:
+      grid[point.y][point.x] = '[O]'
+    return '\n'.join(''.join(row) for row in grid)
 
-# Determines whether all pairwise distances between points are unique.
-def all_distances_unique(points):
-  point_pairs = all_pairs(points)
-  unique_distances = unique_distances_squared(point_pairs)
-  return len(unique_distances) == len(point_pairs)
+  # Generates all pairs between a list of points.
+  def all_pairs(self):
+    return list(itertools.combinations(self.points, 2))
 
-# Generates a string displaying a set of points marked in a square grid.
-# Example output:
-# [O][ ][ ]
-# [ ][O][ ]
-# [ ][ ][O]
-def square_grid(points, side_length):
-  grid = [['[ ]' for _ in range(side_length)] for _ in range(side_length)]
-  for point in points:
-    grid[point.y][point.x] = '[O]'
-  return '\n'.join(''.join(row) for row in grid)
+  # Determines whether all pairwise distances between points are unique.
+  def all_distances_unique(self):
+    point_pairs = self.all_pairs()
+    unique_distances = {distance_squared(pair[0], pair[1]) for pair in point_pairs}
+    return len(unique_distances) == len(point_pairs)
 
-# Rotates a set of points clockwise 90 degrees.
-def rotate(points, side_length):
-  return [Point(side_length - point.y - 1, point.x) for point in points]
+  # Rotates the grid clockwise 90 degrees.
+  def rotate(self):
+    return [Point(self.side_length - point.y - 1, point.x) for point in self.points]
 
-# Reflects a set of points vertically.
-def reflect(points, side_length):
-  return [Point(point.x, side_length - point.y - 1) for point in points]
+  # Reflects a set of points vertically.
+  def reflect(self):
+    return [Point(point.x, self.side_length - point.y - 1) for point in self.points]
 
-# Encodes a set of points in an NxN grid as an integer.
-#
-# For example, a 3x3 grid corresponds to the 9 lowest bits of an integer as such:
-# [0][1][2]
-# [3][4][5]
-# [6][7][8]
-def encode(points, side_length):
-  return functools.reduce(lambda enc, point: enc | 1 << (point.x + side_length * point.y),
-                          points,
-                          0)
+  # Encodes a set of points in an NxN grid as an integer.
+  #
+  # For example, a 3x3 grid corresponds to the 9 lowest bits of an integer as such:
+  # [0][1][2]
+  # [3][4][5]
+  # [6][7][8]
+  def encode(self):
+    return functools.reduce(
+      lambda enc, point:
+        enc | 1 << (point.x + self.side_length * point.y),
+      self.points,
+      0)
 
-# Encodes a set of points with the smallest of any of the possible encodings of any
-# symmetrically equivalent set of points.
-#
-# The grid is rotated and flipped to all symmetric equivalents and reencoded, and the
-# minimum encoding is chosen.
-def min_encoding(points, side_length):
-  # Get all 4 rotations.
-  all_encodings = [encode(points, side_length)]
-  for _ in range(3):
-    points = rotate(points, side_length)
+  # Finds the smallest of any of the possible encodings of any symmetrically equivalent set of
+  # points.
+  #
+  # The grid is rotated and flipped to all symmetric equivalents and reencoded, and the
+  # minimum encoding is chosen.
+  def min_encoding(self):
+    # Get all 4 rotations.
+    all_encodings = [self.encode()]
+    for _ in range(3):
+      points = rotate(points, side_length)
+      all_encodings.append(encode(points,side_length))
+
+    # Flip it over and get the other 4 rotations.
+    points = reflect(points, side_length)
     all_encodings.append(encode(points,side_length))
+    for _ in range(3):
+      points = rotate(points, side_length)
+      all_encodings.append(encode(points,side_length))
 
-  # Flip it over and get the other 4 rotations.
-  points = reflect(points, side_length)
-  all_encodings.append(encode(points,side_length))
-  for _ in range(3):
-    points = rotate(points, side_length)
-    all_encodings.append(encode(points,side_length))
-
-  return functools.reduce(lambda a,b: a if a < b else b, all_encodings)
+    return functools.reduce(lambda a,b: a if a < b else b, all_encodings)
 
 
 def main():
