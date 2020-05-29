@@ -43,7 +43,7 @@ def all_distances_unique(points):
 def square_grid(points, side_length):
   grid = [['[ ]' for _ in range(side_length)] for _ in range(side_length)]
   for point in points:
-    grid[point.x][point.y] = '[O]'
+    grid[point.y][point.x] = '[O]'
   return '\n'.join(''.join(row) for row in grid)
 
 def main():
