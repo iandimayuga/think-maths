@@ -3,20 +3,32 @@ import argparse
 import functools
 import itertools
 
-# Cartesian 2D point.
+# Encodes a point in an NxN grid as an integer with one set bit.
+#
+# For example, a 3x3 grid corresponds to the 9 lowest bits of an integer as such:
+# [0][1][2]
+# [3][4][5]
+# [6][7][8]
+def point_encoding(x, y, side_length):
+  return 1 << (x + side_length * y)
+
+# Cartesian 2D point within a square grid of known size.
 class Point:
-  def __init__(self, x, y):
-    self.x = x
-    self.y = y
+  def __init__(self, x, y, side_length):
+    self._encoding = point_encoding(x, y, side_length)
+    self._side_length = side_length
 
   def __eq__(self, other):
-    return self.x == other.x and self.y == other.y
+    return self._encoding == other._encoding
 
   def __lt__(self, other):
-    return self.y < other.y or (self.y == other.y and self.x < other.x)
+    return self._encoding < other._encoding
+
+  def encoding(self):
+    return self._encoding
 
   def __repr__(self):
-    return "({},{})".format(self.x, self.y)
+    return "({},{})".format(self.x(), self.y())
 
 # The squared Pythagorean distance between two points.
 def distance_squared(point1, point2):
@@ -71,14 +83,14 @@ class Grid:
       self.points,
       0)
 
-  # Finds the smallest of any of the possible encodings of any symmetrically equivalent set of
-  # points.
+  # Encodes a set of points with the smallest of any of the possible encodings of any
+  # symmetrically equivalent set of points.
   #
   # The grid is rotated and flipped to all symmetric equivalents and reencoded, and the
   # minimum encoding is chosen.
-  def min_encoding(self):
+  def min_encoding(points, side_length):
     # Get all 4 rotations.
-    all_encodings = [self.encode()]
+    all_encodings = [encode(points, side_length)]
     for _ in range(3):
       points = rotate(points, side_length)
       all_encodings.append(encode(points,side_length))
