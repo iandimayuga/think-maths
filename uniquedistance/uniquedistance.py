@@ -25,9 +25,9 @@ def distance_squared(point1, point2):
 # Square grid with a set of marked points.
 # Grid markings are considered equal if they are symmetrically equivalent.
 class Grid:
-  def __init__(self, side_length, points):
-    self.side_length = side_length
+  def __init__(self, points, side_length):
     self.points = points
+    self.side_length = side_length
 
   # Generates a string displaying a set of points marked in a square grid.
   # Example output:
@@ -52,46 +52,48 @@ class Grid:
 
   # Rotates the grid clockwise 90 degrees.
   def rotate(self):
-    return [Point(self.side_length - point.y - 1, point.x) for point in self.points]
+    return Grid([Point(self.side_length - point.y - 1, point.x) for point in self.points],
+                self.side_length)
 
   # Reflects a set of points vertically.
   def reflect(self):
-    return [Point(point.x, self.side_length - point.y - 1) for point in self.points]
+    return Grid([Point(point.x, self.side_length - point.y - 1) for point in self.points],
+                self.side_length)
 
-  # Encodes a set of points in an NxN grid as an integer.
+  # Encodes the set of points in the grid as an integer.
   #
   # For example, a 3x3 grid corresponds to the 9 lowest bits of an integer as such:
   # [0][1][2]
   # [3][4][5]
   # [6][7][8]
-  def encode(self):
+  def encoding(self):
     return functools.reduce(
       lambda enc, point:
         enc | 1 << (point.x + self.side_length * point.y),
       self.points,
       0)
 
-  # Finds the smallest of any of the possible encodings of any symmetrically equivalent set of
-  # points.
-  #
-  # The grid is rotated and flipped to all symmetric equivalents and reencoded, and the
-  # minimum encoding is chosen.
-  def min_encoding(self):
+  def all_symmetric_grids(self):
     # Get all 4 rotations.
-    all_encodings = [self.encode()]
+    all_grids = []
+    next_grid = self
+    all_grids.append(next_grid)
     for _ in range(3):
-      points = rotate(points, side_length)
-      all_encodings.append(encode(points,side_length))
+      next_grid = next_grid.rotate()
+      all_grids.append(next_grid)
 
     # Flip it over and get the other 4 rotations.
-    points = reflect(points, side_length)
-    all_encodings.append(encode(points,side_length))
+    next_grid = next_grid.reflect()
+    all_grids.append(next_grid)
     for _ in range(3):
-      points = rotate(points, side_length)
-      all_encodings.append(encode(points,side_length))
+      next_grid = next_grid.rotate()
+      all_grids.append(next_grid)
 
-    return functools.reduce(lambda a,b: a if a < b else b, all_encodings)
+    return all_grids
 
+  # Finds all possible encodings for symmetrically equivalent grids.
+  def all_symmetric_encodings(self):
+    return [grid.encoding() for grid in self.all_symmetric_grids()]
 
 def main():
   parser = argparse.ArgumentParser(description="Find all possible placements of coins in a square grid of side length 'size' such that all pairwise distances between coins are unique.")
@@ -101,17 +103,19 @@ def main():
   print("Computing {0} coin placements for a {1}x{1} square...".format(args.coins, args.size))
 
   possible_points = [Point(x, y) for x in range(args.size) for y in range(args.size)]
-  possible_coin_placements = itertools.combinations(possible_points, args.coins)
+  possible_coin_placements = [
+    Grid(placement, args.size)
+    for placement in itertools.combinations(possible_points, args.coins)]
 
+  seen_encodings = set()
   for coin_placement in possible_coin_placements:
-    # We don't actually call all_distances_unique() to avoid duplicating work,
-    # since we want to cache the distances themselves for debugging.
-    point_pairs = all_pairs(coin_placement)
-    unique_distances = unique_distances_squared(point_pairs)
-    if len(unique_distances) == len(point_pairs):
-      print(square_grid(coin_placement, args.size))
-      print()
-      print(unique_distances)
+    if coin_placement.encoding() in seen_encodings:
+      continue
+
+    seen_encodings.update(coin_placement.all_symmetric_encodings())
+
+    if coin_placement.all_distances_unique():
+      print(coin_placement)
       print()
 
 if __name__ == "__main__":
