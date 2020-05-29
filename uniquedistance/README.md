@@ -9,7 +9,7 @@ Brute force solution to [Matt Parker's Maths Puzzle 7: Unique Distance](https://
 
 Refinements I may get to eventually:
 - Eliminate duplicates via symmetry
-- Use a depth-first culling approach to quickly short-circuit failed squares (i.e. squares that gave it a go)
+- Use some sort of memoization or culling approach to quickly short-circuit failed squares (i.e. squares that gave it a go)
 
 Here's all 16 solutions for 6 coins on a 6x6 square:
 ```
