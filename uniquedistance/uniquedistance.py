@@ -1,5 +1,6 @@
 # https://think-maths.co.uk/uniquedistance
 import argparse
+import functools
 import itertools
 
 # Cartesian 2D point.
@@ -45,6 +46,34 @@ def square_grid(points, side_length):
   for point in points:
     grid[point.y][point.x] = '[O]'
   return '\n'.join(''.join(row) for row in grid)
+
+# Rotates a set of points clockwise 90 degrees.
+def rotate(points, side_length):
+  return [Point(side_length - point.y - 1, point.x) for point in points]
+
+# Reflects a set of points vertically.
+def reflect(points, side_length):
+  return [Point(point.x, side_length - point.y - 1) for point in points]
+
+# Encodes a set of points in an NxN grid as an integer.
+#
+# For example, a 3x3 grid corresponds to the 9 lowest bits of an integer as such:
+# [0][1][2]
+# [3][4][5]
+# [6][7][8]
+def encode(points, side_length):
+  return functools.reduce(lambda enc, point: enc | 1 << (point.x + side_length * point.y),
+                          points,
+                          0)
+
+# Encodes a set of points with the smallest of any of the possible encodings of any
+# symmetrically equivalent set of points.
+#
+# The grid is rotated and flipped to all symmetric equivalents and reencoded, and the
+# minimum encoding is chosen.
+def min_encoding(points, side_length):
+  current_min = float('inf')
+
 
 def main():
   parser = argparse.ArgumentParser(description="Find all possible placements of coins in a square grid of side length 'size' such that all pairwise distances between coins are unique.")
