@@ -72,7 +72,20 @@ def encode(points, side_length):
 # The grid is rotated and flipped to all symmetric equivalents and reencoded, and the
 # minimum encoding is chosen.
 def min_encoding(points, side_length):
-  current_min = float('inf')
+  # Get all 4 rotations.
+  all_encodings = [encode(points, side_length)]
+  for _ in range(3):
+    points = rotate(points, side_length)
+    all_encodings.append(encode(points,side_length))
+
+  # Flip it over and get the other 4 rotations.
+  points = reflect(points, side_length)
+  all_encodings.append(encode(points,side_length))
+  for _ in range(3):
+    points = rotate(points, side_length)
+    all_encodings.append(encode(points,side_length))
+
+  return functools.reduce(lambda a,b: a if a < b else b, all_encodings)
 
 
 def main():
