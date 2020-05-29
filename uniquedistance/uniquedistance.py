@@ -2,6 +2,7 @@
 import argparse
 import itertools
 
+# Cartesian 2D point.
 class Point:
   def __init__(self, x, y):
     self.x = x
@@ -16,20 +17,29 @@ class Point:
   def __repr__(self):
     return "({},{})".format(self.x, self.y)
 
+# The squared Pythagorean distance between two points.
 def distance_squared(point1, point2):
   return (point2.x - point1.x)**2 + (point2.y - point1.y)**2
 
+# Generates all pairs between a list of points.
 def all_pairs(points):
   return list(itertools.combinations(points, 2))
 
+# Returns the unique pairwise squared distances between points.
 def unique_distances_squared(point_pairs):
   return {distance_squared(pair[0], pair[1]) for pair in point_pairs}
 
+# Determines whether all pairwise distances between points are unique.
 def all_distances_unique(points):
   point_pairs = all_pairs(points)
   unique_distances = unique_distances_squared(point_pairs)
   return len(unique_distances) == len(point_pairs)
 
+# Generates a string displaying a set of points marked in a square grid.
+# Example output:
+# [O][ ][ ]
+# [ ][O][ ]
+# [ ][ ][O]
 def square_grid(points, side_length):
   grid = [['[ ]' for _ in range(side_length)] for _ in range(side_length)]
   for point in points:
