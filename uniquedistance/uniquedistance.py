@@ -17,6 +17,8 @@ class Point:
   def __init__(self, x, y, side_length):
     self._encoding = point_encoding(x, y, side_length)
     self._side_length = side_length
+    self._x = x
+    self._y = y
 
   def __eq__(self, other):
     return self._encoding == other._encoding
@@ -27,12 +29,18 @@ class Point:
   def encoding(self):
     return self._encoding
 
+  def x(self):
+    return self._x
+
+  def y(self):
+    return self._y
+
   def __repr__(self):
     return "({},{})".format(self.x(), self.y())
 
 # The squared Pythagorean distance between two points.
 def distance_squared(point1, point2):
-  return (point2.x - point1.x)**2 + (point2.y - point1.y)**2
+  return (point2.x() - point1.x())**2 + (point2.y() - point1.y())**2
 
 # Square grid on which points can be marked one by one.
 # Grid markings are considered equal if they are symmetrically equivalent.
