@@ -1,17 +1,16 @@
 
-Brute force solution to [Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance) without regard for symmetry.
+Brute force solution to [Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance) accounting for symmetry.
 
 1. Grab all possible combinations of points in the square.
-2. Compute pairwise distances between each of the points. Using squared-distances is sufficient to find duplicates, no need for square root.
-3. Pop the distances into a set to find duplicates.
-4. Print the squares that don't have duplicate distances
-5. Print the (squared) distances too for debugging
+2. For each combination, hash it and all its possible rotations/reflections to skip equivalents.
+3. Compute pairwise distances between each of the points. Using squared-distances is sufficient to find duplicate distances, no need for square root.
+4. Pop the distances into a set to find duplicates.
+5. Print the squares that don't have duplicate distances.
 
-Refinements I may get to eventually:
-- Eliminate duplicates via symmetry
+Next refinement I may get to eventually:
 - Use some sort of memoization or culling approach to quickly short-circuit failed squares (i.e. squares that gave it a go)
 
-Here's all 16 solutions for 6 coins on a 6x6 square:
+Here's both solutions for 6 coins on a 6x6 square:
 ```
 > python .\uniquedistance.py 6 6
 Computing 6 coin placements for a 6x6 square...
@@ -22,140 +21,10 @@ Computing 6 coin placements for a 6x6 square...
 [ ][ ][ ][ ][ ][ ]
 [ ][ ][ ][O][ ][O]
 
-{1, 34, 4, 5, 8, 41, 10, 9, 13, 17, 50, 20, 25, 26, 29}
-
 [O][ ][ ][ ][ ][ ]
 [ ][ ][ ][ ][ ][ ]
 [O][ ][ ][ ][ ][ ]
 [ ][ ][ ][O][ ][ ]
 [ ][ ][ ][ ][O][O]
 [O][ ][ ][ ][ ][ ]
-
-{32, 1, 2, 4, 5, 41, 9, 10, 13, 17, 18, 20, 25, 26, 29}
-
-[O][ ][ ][O][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][O][ ][ ][ ]
-[ ][ ][ ][ ][O][O]
-
-{1, 34, 4, 5, 8, 9, 41, 10, 13, 17, 50, 20, 25, 26, 29}
-
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][O][O]
-[ ][ ][ ][O][ ][ ]
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][ ][ ][ ][ ]
-
-{32, 1, 2, 4, 5, 9, 10, 41, 13, 17, 18, 20, 25, 26, 29}
-
-[O][ ][O][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][O][ ]
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[ ][ ][ ][ ][ ][O]
-
-{1, 34, 4, 5, 8, 9, 41, 10, 13, 17, 50, 20, 25, 26, 29}
-
-[O][O][ ][ ][ ][ ]
-[ ][ ][ ][O][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][O][ ][ ][O]
-
-{1, 34, 4, 5, 8, 41, 10, 9, 13, 17, 50, 20, 25, 26, 29}
-
-[O][ ][ ][O][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][O][ ][ ][ ]
-[ ][O][ ][ ][ ][ ]
-[ ][O][ ][ ][ ][ ]
-
-{32, 1, 2, 4, 5, 9, 41, 10, 13, 17, 18, 20, 25, 26, 29}
-
-[O][ ][O][ ][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][O][ ][ ]
-[ ][ ][ ][ ][O][ ]
-[ ][ ][ ][ ][O][ ]
-
-{32, 1, 2, 4, 5, 41, 10, 9, 13, 17, 18, 20, 25, 26, 29}
-
-[ ][ ][ ][ ][ ][O]
-[O][O][ ][ ][ ][ ]
-[ ][ ][O][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-
-{32, 1, 2, 4, 5, 41, 10, 9, 13, 17, 18, 20, 25, 26, 29}
-
-[ ][ ][ ][ ][ ][O]
-[ ][ ][ ][ ][ ][O]
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][O][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][O][ ][ ][ ]
-
-{1, 34, 4, 5, 8, 9, 41, 10, 13, 17, 50, 20, 25, 26, 29}
-
-[ ][ ][ ][ ][O][O]
-[ ][ ][O][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][ ][O][ ][ ]
-
-{1, 34, 4, 5, 8, 9, 41, 10, 13, 17, 50, 20, 25, 26, 29}
-
-[ ][ ][ ][O][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][O][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[O][ ][ ][ ][ ][ ]
-[O][ ][ ][ ][ ][ ]
-
-{1, 34, 4, 5, 8, 41, 10, 9, 13, 17, 50, 20, 25, 26, 29}
-
-[ ][ ][ ][ ][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[ ][ ][O][ ][ ][ ]
-[O][O][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-
-{32, 1, 2, 4, 5, 41, 10, 9, 13, 17, 18, 20, 25, 26, 29}
-
-[ ][O][ ][ ][ ][ ]
-[ ][O][ ][ ][ ][ ]
-[ ][ ][O][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][ ][O][ ][O]
-
-{32, 1, 2, 4, 5, 9, 41, 10, 13, 17, 18, 20, 25, 26, 29}
-
-[ ][ ][O][ ][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][O][ ][ ]
-[O][O][ ][ ][ ][ ]
-
-{1, 34, 4, 5, 8, 41, 10, 9, 13, 17, 50, 20, 25, 26, 29}
-
-[ ][ ][ ][ ][O][ ]
-[ ][ ][ ][ ][O][ ]
-[ ][ ][ ][O][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[O][ ][O][ ][ ][O]
-
-{32, 1, 2, 4, 5, 41, 10, 9, 13, 17, 18, 20, 25, 26, 29}
 ```
