@@ -22,12 +22,15 @@ class Point:
 def distance_squared(point1, point2):
   return (point2.x - point1.x)**2 + (point2.y - point1.y)**2
 
-# Square grid with a set of marked points.
+# Square grid on which points can be marked one by one.
 # Grid markings are considered equal if they are symmetrically equivalent.
 class Grid:
-  def __init__(self, points, side_length):
-    self.points = points
-    self.side_length = side_length
+  def __init__(self, side_length):
+    self._all_pairs = set()
+    self._points = set()
+    self._unique_distances_squared = set()
+    self._all_distances_unique = True
+    self._side_length = side_length
 
   # Generates a string displaying a set of points marked in a square grid.
   # Example output:
@@ -35,30 +38,37 @@ class Grid:
   # [ ][O][ ]
   # [ ][ ][O]
   def __repr__(self):
-    grid = [['[ ]' for _ in range(self.side_length)] for _ in range(self.side_length)]
-    for point in self.points:
+    grid = [['[ ]' for _ in range(self._side_length)] for _ in range(self._side_length)]
+    for point in self._points:
       grid[point.y][point.x] = '[O]'
     return '\n'.join(''.join(row) for row in grid)
 
+  def add(self, new_point):
+    new_pairs = {(point, new_point) for point in self._points}
+    new_distances_squared = {distance_squared(pair[0], pair[1]) for pair in new_pairs}
+    if self._unique_distances_squared.intersection(new_distances_squared):
+      self._all_distances_unique = False
+    self._all_pairs.update(new_pairs)
+    self._points.add(new_point)
+    self._unique_distances_squared.update(new_distances_squared)
+
   # Generates all pairs between a list of points.
   def all_pairs(self):
-    return list(itertools.combinations(self.points, 2))
+    return self._all_pairs
 
   # Determines whether all pairwise distances between points are unique.
   def all_distances_unique(self):
-    point_pairs = self.all_pairs()
-    unique_distances = {distance_squared(pair[0], pair[1]) for pair in point_pairs}
-    return len(unique_distances) == len(point_pairs)
+    return _all_distances_unique
 
   # Rotates the grid clockwise 90 degrees.
   def rotate(self):
-    return Grid([Point(self.side_length - point.y - 1, point.x) for point in self.points],
-                self.side_length)
+    return Grid([Point(self._side_length - point.y - 1, point.x) for point in self._points],
+                self._side_length)
 
   # Reflects a set of points vertically.
   def reflect(self):
-    return Grid([Point(point.x, self.side_length - point.y - 1) for point in self.points],
-                self.side_length)
+    return Grid([Point(point.x, self._side_length - point.y - 1) for point in self._points],
+                self._side_length)
 
   # Encodes the set of points in the grid as an integer.
   #
@@ -69,8 +79,8 @@ class Grid:
   def encoding(self):
     return functools.reduce(
       lambda enc, point:
-        enc | 1 << (point.x + self.side_length * point.y),
-      self.points,
+        enc | 1 << (point.x + self._side_length * point.y),
+      self._points,
       0)
 
   def all_symmetric_grids(self):
