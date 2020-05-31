@@ -95,14 +95,13 @@ My guess is it has something to do with having to fit two more coins in the fina
 
 ```
 The N+1 x N+1 square:
-
-..................[ ]
-.                 [ ]
+.  .  .  .  .  .  [ ]
+.  .  .  .  .  .  [ ]
 . Only up to N-1  [ ]
 .  coins may go   [ ] <---
-.      here!      [ ]     |
-.                 [ ]     |
-.                 [ ]     |
+.  .   here!   .  [ ]     |
+.  .  .  .  .  .  [ ]     |
+.  .  .  .  .  .  [ ]     |
 [ ][ ][ ][ ][ ][ ][ ] <---Two coins have to go somewhere here
 ```
 
