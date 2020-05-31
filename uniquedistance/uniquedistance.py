@@ -123,8 +123,16 @@ class Grid:
     new_pairs = {(point, new_point) for point in self._points}
 
     new_distances_squared = [distance_squared(pair[0], pair[1]) for pair in new_pairs]
-    if set(self._unique_distances_squared).intersection(new_distances_squared):
+
+    # Check if any of the new distances are the same as each other.
+    new_distances_set = set(new_distances_squared)
+    if (len(new_distances_set) < len(new_distances_squared)):
       self._all_distances_unique = False
+
+    # Check if any of the new distances are the same as any of the existing distances.
+    if set(self._unique_distances_squared).intersection(new_distances_set):
+      self._all_distances_unique = False
+
     self._unique_distances_squared.extend(new_distances_squared)
 
     self._points.append(new_point)
