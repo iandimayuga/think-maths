@@ -2,6 +2,7 @@
 import argparse
 import functools
 import itertools
+import math
 
 # Encodes a point in an NxN grid as an integer with one set bit.
 #
@@ -157,6 +158,8 @@ class Grid:
       enc[0] ^ enc[1] for enc in
       zip(self._all_symmetric_encodings, old_point.all_symmetric_encodings())]
 
+    return old_point
+
   # Determines whether all pairwise distances between points are unique.
   def all_distances_unique(self):
     return self._all_distances_unique
@@ -174,28 +177,68 @@ class Grid:
   def all_symmetric_encodings(self):
     return self._all_symmetric_encodings
 
+progress = 0
+
+# Depth-first search through possible grids by adding remaining points.
+# Returns list of all uniquely distanced grids.
+def find_unique_grids(grid, max_points, remaining_points, seen_encodings, total_combos):
+  global progress
+  progress += 1
+  print("Generated {}/{} grids...".format(progress, total_combos), end='\r', flush=True)
+
+  # Base case: Grid has already been seen.
+  if grid.encoding() in seen_encodings:
+    return []
+
+  seen_encodings.update(grid.all_symmetric_encodings())
+
+  # Base case: Grid does not have all unique distances.
+  if not grid.all_distances_unique():
+    return []
+
+  # Base case: Success! Grid has max points and all distances are unique.
+  if len(grid) >= max_points:
+    return [str(grid)]
+
+  successful_grids = []
+
+  # Try adding each of the remaining points to the grid one by one.
+  for point in remaining_points:
+    grid.add(point)
+    successful_grids.extend(find_unique_grids(grid,
+                                              max_points,
+                                              remaining_points - {point},
+                                              seen_encodings,
+                                              total_combos))
+    removed = grid.pop()
+
+  return successful_grids
+
 def main():
   parser = argparse.ArgumentParser(description="Find all possible placements of coins in a square grid of side length 'size' such that all pairwise distances between coins are unique.")
   parser.add_argument("coins", type=int, help="Number of coins.")
   parser.add_argument("size", type=int, help="The side length of the square grid.")
   args = parser.parse_args()
   print("Computing {0} coin placements for a {1}x{1} square...".format(args.coins, args.size))
+  print()
 
-  possible_points = [Point(x, y) for x in range(args.size) for y in range(args.size)]
-  possible_coin_placements = [
-    Grid(placement, args.size)
-    for placement in itertools.combinations(possible_points, args.coins)]
+  grid = Grid(args.size)
+  possible_points = frozenset({Point(x, y, args.size) for x in range(args.size) for y in range(args.size)})
 
   seen_encodings = set()
-  for coin_placement in possible_coin_placements:
-    if coin_placement.encoding() in seen_encodings:
-      continue
 
-    seen_encodings.update(coin_placement.all_symmetric_encodings())
+  # Find the theoretical maximum number of grids for printing progress.
+  total_combos = math.comb(args.size**2, args.coins)
 
-    if coin_placement.all_distances_unique():
-      print(coin_placement)
-      print()
+  # Do the depth-first boogie.
+  successful_grids = find_unique_grids(grid, args.coins, possible_points, seen_encodings, total_combos)
+
+  print()
+  print()
+
+  for grid in successful_grids:
+    print(grid)
+    print()
 
 if __name__ == "__main__":
   main()
