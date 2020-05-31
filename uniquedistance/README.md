@@ -3,10 +3,13 @@ Depth-first search solution to
 , accounting for symmetry.
 
 1. Start with an empty grid.
-2. Choose an available point and add it to the grid.
-3. Encode the grid and all its symmetric equivalents with a unique binary representation.
-4. Remove the coin if the resulting grid has been seen before or that have any duplicate distances.
-5. If the desired number of coins has been reached, print the grid.
+2. Perform a depth-first search:
+3. Choose an available point and add it to the grid.
+4. Encode the grid state and all its symmetric equivalents with a unique binary representation.
+5. Calculate the (squared) distances from the existing points in the grid to the new point.
+6. Remove the coin if the resulting grid has been seen before or if there are any duplicate distances.
+7. If the desired number of coins has been reached, print the grid.
+8. Go back and pick a new point.
 
 The number of coins is arbitrary and independent of the size of the square.  
 Currently the code assumes square grids, but could be easily adapted for arbitrary rectangles.
