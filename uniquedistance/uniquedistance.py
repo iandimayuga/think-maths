@@ -1,4 +1,4 @@
-# https://think-maths.co.uk/uniquedistance
+# Tools to help solve MPMP7: https://think-maths.co.uk/uniquedistance
 import argparse
 import functools
 import itertools
@@ -12,7 +12,7 @@ import itertools
 def point_encoding(x, y, side_length):
   return 1 << (x + side_length * y)
 
-# Cartesian 2D point within a square grid of known size.
+# 2D point within a square grid of known size.
 class Point:
   def __init__(self, x, y, side_length):
     self._encoding = point_encoding(x, y, side_length)
@@ -26,8 +26,44 @@ class Point:
   def __lt__(self, other):
     return self._encoding < other._encoding
 
+  def __hash__(self):
+    return self.encoding()
+
+  def side_length(self):
+    return self._side_length
+
   def encoding(self):
     return self._encoding
+
+  # Rotates the point clockwise 90 degrees within the grid.
+  def rotate(self):
+    return Point(self._side_length - self.y() - 1, self.x(), self._side_length)
+
+  # Reflects a point vertically across the grid.
+  def reflect(self):
+    return Point(self.x(), self._side_length - self.y() - 1, self._side_length)
+
+  def all_symmetric_points(self):
+    # Get all 4 rotations.
+    all_points = []
+    next_point = self
+    all_points.append(next_point)
+    for _ in range(3):
+      next_point = next_point.rotate()
+      all_points.append(next_point)
+
+    # Flip it over and get the other 4 rotations.
+    next_point = next_point.reflect()
+    all_points.append(next_point)
+    for _ in range(3):
+      next_point = next_point.rotate()
+      all_points.append(next_point)
+
+    return all_points
+
+  # Finds all possible encodings for symmetrically equivalent points.
+  def all_symmetric_encodings(self):
+    return [point.encoding() for point in self.all_symmetric_points()]
 
   def x(self):
     return self._x
@@ -46,10 +82,10 @@ def distance_squared(point1, point2):
 # Grid markings are considered equal if they are symmetrically equivalent.
 class Grid:
   def __init__(self, side_length):
-    self._all_pairs = set()
     self._points = set()
     self._unique_distances_squared = set()
     self._all_distances_unique = True
+    self._all_symmetric_encodings = [0]*8
     self._side_length = side_length
 
   # Generates a string displaying a set of points marked in a square grid.
@@ -60,35 +96,33 @@ class Grid:
   def __repr__(self):
     grid = [['[ ]' for _ in range(self._side_length)] for _ in range(self._side_length)]
     for point in self._points:
-      grid[point.y][point.x] = '[O]'
+      grid[point.y()][point.x()] = '[O]'
     return '\n'.join(''.join(row) for row in grid)
 
   def add(self, new_point):
+    if new_point.side_length() != self._side_length:
+      raise ValueError("Grid of side length {} cannot accept point for different side length {}"
+        .format(self._side_length, new_point.side_length()))
+
+    if new_point in self._points:
+      return
+
+    self._points.add(new_point)
+
     new_pairs = {(point, new_point) for point in self._points}
+
     new_distances_squared = {distance_squared(pair[0], pair[1]) for pair in new_pairs}
     if self._unique_distances_squared.intersection(new_distances_squared):
       self._all_distances_unique = False
-    self._all_pairs.update(new_pairs)
-    self._points.add(new_point)
     self._unique_distances_squared.update(new_distances_squared)
 
-  # Generates all pairs between a list of points.
-  def all_pairs(self):
-    return self._all_pairs
+    self._all_symmetric_encodings = [
+      enc[0] | enc[1] for enc in
+      zip(self._all_symmetric_encodings, new_point.all_symmetric_encodings())]
 
   # Determines whether all pairwise distances between points are unique.
   def all_distances_unique(self):
-    return _all_distances_unique
-
-  # Rotates the grid clockwise 90 degrees.
-  def rotate(self):
-    return Grid([Point(self._side_length - point.y - 1, point.x) for point in self._points],
-                self._side_length)
-
-  # Reflects a set of points vertically.
-  def reflect(self):
-    return Grid([Point(point.x, self._side_length - point.y - 1) for point in self._points],
-                self._side_length)
+    return self._all_distances_unique
 
   # Encodes the set of points in the grid as an integer.
   #
@@ -97,33 +131,11 @@ class Grid:
   # [3][4][5]
   # [6][7][8]
   def encoding(self):
-    return functools.reduce(
-      lambda enc, point:
-        enc | 1 << (point.x + self._side_length * point.y),
-      self._points,
-      0)
-
-  def all_symmetric_grids(self):
-    # Get all 4 rotations.
-    all_grids = []
-    next_grid = self
-    all_grids.append(next_grid)
-    for _ in range(3):
-      next_grid = next_grid.rotate()
-      all_grids.append(next_grid)
-
-    # Flip it over and get the other 4 rotations.
-    next_grid = next_grid.reflect()
-    all_grids.append(next_grid)
-    for _ in range(3):
-      next_grid = next_grid.rotate()
-      all_grids.append(next_grid)
-
-    return all_grids
+    return self._all_symmetric_encodings[0]
 
   # Finds all possible encodings for symmetrically equivalent grids.
   def all_symmetric_encodings(self):
-    return [grid.encoding() for grid in self.all_symmetric_grids()]
+    return self._all_symmetric_encodings
 
 def main():
   parser = argparse.ArgumentParser(description="Find all possible placements of coins in a square grid of side length 'size' such that all pairwise distances between coins are unique.")
