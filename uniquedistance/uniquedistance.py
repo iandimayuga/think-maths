@@ -30,6 +30,15 @@ class Point:
   def __hash__(self):
     return self.encoding()
 
+  def __repr__(self):
+    return "({},{})".format(self.x(), self.y())
+
+  def x(self):
+    return self._x
+
+  def y(self):
+    return self._y
+
   def side_length(self):
     return self._side_length
 
@@ -65,15 +74,6 @@ class Point:
   # Finds all possible encodings for symmetrically equivalent points.
   def all_symmetric_encodings(self):
     return [point.encoding() for point in self.all_symmetric_points()]
-
-  def x(self):
-    return self._x
-
-  def y(self):
-    return self._y
-
-  def __repr__(self):
-    return "({},{})".format(self.x(), self.y())
 
 # The squared Pythagorean distance between two points.
 def distance_squared(point1, point2):
