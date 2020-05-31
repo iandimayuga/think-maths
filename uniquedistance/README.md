@@ -1,25 +1,31 @@
+Depth-first search solution to
+[Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance)
+, accounting for symmetry.
 
-Brute force solution to [Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance) accounting for symmetry.
+1. Start with an empty grid.
+2. Choose an available point and add it to the grid.
+3. Encode the grid and all its symmetric equivalents with a unique binary representation.
+4. Remove the coin if the resulting grid has been seen before or that have any duplicate distances.
+5. If the desired number of coins has been reached, print the grid.
 
-1. Grab all possible combinations of points in the square.
-2. For each combination, hash it and all its possible rotations/reflections to skip equivalents.
-3. Compute pairwise distances between each of the points. Using squared-distances is sufficient to find duplicate distances, no need for square root.
-4. Pop the distances into a set to find duplicates.
-5. Print the squares that don't have duplicate distances.
+The number of coins is arbitrary and independent of the size of the square.  
+Currently the code assumes square grids, but could be easily adapted for arbitrary rectangles.
 
-Next refinement I may get to eventually:
-- Use some sort of memoization or culling approach to quickly short-circuit failed squares (i.e. squares that gave it a go)
+We also keep track of the performance in terms of the number of grids generated
+(and thereby the number of times we measure distances).  
+We compare this to the expected number of combinations of C coins on an LxL grid (LxL choose C).
+
+Interestingly for a 3x3 square, we generate more grids than the total (90/84).  
+This is because we include all the intermediate grids with 0, 1, or 2 coins.  
+Ultimately this tradeoff scales hugely for larger grids,
+because it prunes the whole branch as soon as we hit a duplicate distance.
 
 Here's both solutions for 6 coins on a 6x6 square:
 ```
 > python .\uniquedistance.py 6 6
 Computing 6 coin placements for a 6x6 square...
-[O][ ][ ][ ][ ][ ]
-[O][ ][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][O]
-[ ][O][ ][ ][ ][ ]
-[ ][ ][ ][ ][ ][ ]
-[ ][ ][ ][O][ ][O]
+
+Generated 164623/1947792 grids...
 
 [O][ ][ ][ ][ ][ ]
 [ ][ ][ ][ ][ ][ ]
@@ -27,4 +33,27 @@ Computing 6 coin placements for a 6x6 square...
 [ ][ ][ ][O][ ][ ]
 [ ][ ][ ][ ][O][O]
 [O][ ][ ][ ][ ][ ]
+
+[O][ ][ ][O][ ][ ]
+[ ][ ][ ][ ][ ][ ]
+[O][ ][ ][ ][ ][ ]
+[ ][ ][ ][ ][ ][ ]
+[ ][ ][O][ ][ ][ ]
+[ ][ ][ ][ ][O][O]
+```
+
+And the single solution for 7 coins on a 7x7 square:
+```
+> python .\uniquedistance.py 7 7
+Computing 7 coin placements for a 7x7 square...
+
+Generated 1678910/85900584 grids...
+
+[O][ ][ ][ ][ ][ ][ ]
+[ ][O][ ][ ][ ][ ][ ]
+[ ][ ][ ][ ][ ][ ][ ]
+[ ][ ][ ][ ][ ][ ][O]
+[O][ ][ ][ ][ ][ ][ ]
+[ ][ ][ ][ ][O][ ][ ]
+[ ][ ][ ][ ][O][ ][O]
 ```
