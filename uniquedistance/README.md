@@ -2,6 +2,8 @@ Depth-first search solution to
 [Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance)
 , accounting for symmetry.
 
+## Algorithm
+
 1. Start with an empty grid.
 2. Perform a depth-first search:
 3. Choose an available point and add it to the grid.
@@ -22,6 +24,14 @@ Interestingly for a 3x3 square, we generate more grids than the total (90/84).
 This is because we include all the intermediate grids with 0, 1, or 2 coins.  
 Ultimately this tradeoff scales hugely for larger grids,
 because it prunes the whole branch as soon as we hit a duplicate distance.
+
+## Results
+- 3 in a 3x3: 5 solutions
+- 4 in a 4x4: 23 solutions
+- 5 in a 5x5: 35 solutions
+- 6 in a 6x6: 2 solutions
+- 7 in a 7x7: 1 solution
+- 8 in an 8x8: 0 solutions
 
 Here's both solutions for 6 coins on a 6x6 square:
 ```
@@ -74,3 +84,30 @@ Generated 17143985/4426165368 grids...
 
 Found 0 unique solutions!
 ```
+
+## Conjecture
+I don't think there are any solutions past 8x8.
+
+I suspect there exists a proof by induction that goes something like this:  
+*If you cannot fit N coins in an N x N grid (i.e. starting at 8), then you cannot fit N+1 coins in an N+1 x N+1 grid.*
+
+My guess is it has something to do with having to fit two more coins in the final row and column.
+
+```
+The N+1 x N+1 square:
+
+..................[ ]
+.                 [ ]
+. Only up to N-1  [ ]
+.  coins may go   [ ] <---
+.      here!      [ ]     |
+.                 [ ]     |
+.                 [ ]     |
+[ ][ ][ ][ ][ ][ ][ ] <---Two coins have to go somewhere here
+```
+
+There's some pattern with the smaller squares--
+for one, every solution so far, from sizes 3 to 7, leaves at least one row or one column empty.  
+This screams "pigeonhole principle" to me.
+
+This is probably as far as I'll get this week. I look forward to Matt's video :)
