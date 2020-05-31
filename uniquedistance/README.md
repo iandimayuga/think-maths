@@ -1,6 +1,6 @@
 Depth-first search solution to
-[Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance)
-, accounting for symmetry.
+[Matt Parker's Maths Puzzle 7: Unique Distance](https://think-maths.co.uk/uniquedistance),
+accounting for symmetry.
 
 ## Algorithm
 
@@ -106,8 +106,8 @@ The N+1 x N+1 square:
 [ ][ ][ ][ ][ ][ ][ ] <---Two coins have to go somewhere here
 ```
 
-There's some pattern with the smaller squares--
-for one, every solution so far, from sizes 3 to 7, leaves at least one row or one column empty.  
+There's some pattern with the smaller squares.  
+For one, every solution so far from sizes 3 to 7 leaves at least one row or one column empty.  
 This screams "pigeonhole principle" to me.
 
 This is probably as far as I'll get this week. I look forward to Matt's video :)
