@@ -80,13 +80,21 @@ def distance_squared(point1, point2):
 
 # Square grid on which points can be marked one by one.
 # Grid markings are considered equal if they are symmetrically equivalent.
+# Markings can be removed from the grid one by one.
+# Grid has "failed" and cannot be added to if there are any duplicate distances between points.
 class Grid:
   def __init__(self, side_length):
-    self._points = set()
-    self._unique_distances_squared = set()
+    self._points = []
+    self._unique_distances_squared = []
     self._all_distances_unique = True
     self._all_symmetric_encodings = [0]*8
     self._side_length = side_length
+
+  def __bool__():
+    return bool(self._points)
+
+  def __len__(self):
+    return len(self._points)
 
   # Generates a string displaying a set of points marked in a square grid.
   # Example output:
@@ -104,21 +112,42 @@ class Grid:
       raise ValueError("Grid of side length {} cannot accept point for different side length {}"
         .format(self._side_length, new_point.side_length()))
 
-    if new_point in self._points:
-      return
+    # This allows us to enforce the invariant that _all_distances_unique is True after popping,
+    # so we do not have to recalculate all the distances when popping a coin.
+    if not self._all_distances_unique:
+      raise ValueError("Cannot add new point to failed grid.")
 
-    self._points.add(new_point)
+    if new_point in self._points:
+      raise ValueError("Point {} already in grid.".format(new_point))
 
     new_pairs = {(point, new_point) for point in self._points}
 
-    new_distances_squared = {distance_squared(pair[0], pair[1]) for pair in new_pairs}
-    if self._unique_distances_squared.intersection(new_distances_squared):
+    new_distances_squared = [distance_squared(pair[0], pair[1]) for pair in new_pairs]
+    if set(self._unique_distances_squared).intersection(new_distances_squared):
       self._all_distances_unique = False
-    self._unique_distances_squared.update(new_distances_squared)
+    self._unique_distances_squared.extend(new_distances_squared)
 
+    self._points.append(new_point)
+
+    # OR the new point's symmetric encodings in with the grid's encodings.
     self._all_symmetric_encodings = [
       enc[0] | enc[1] for enc in
       zip(self._all_symmetric_encodings, new_point.all_symmetric_encodings())]
+
+  def pop(self):
+    old_point = self._points.pop()
+
+    # Remove the last N distances added.
+    for _ in range(len(self._points)):
+      self._unique_distances_squared.pop()
+
+    # Invariant as long as add() is disallowed for non-unique-distance grids.
+    self._all_distances_unique = True
+
+    # XOR the old point's symmetric encodings out of the grid's encodings.
+    self._all_symmetric_encodings = [
+      enc[0] ^ enc[1] for enc in
+      zip(self._all_symmetric_encodings, old_point.all_symmetric_encodings())]
 
   # Determines whether all pairwise distances between points are unique.
   def all_distances_unique(self):
