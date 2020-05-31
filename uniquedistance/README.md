@@ -64,3 +64,13 @@ Found 1 unique solutions!
 [ ][ ][ ][ ][O][ ][ ]
 [ ][ ][ ][ ][O][ ][O]
 ```
+
+And just for completeness... 8x8:
+```
+> python .\uniquedistance.py 8 8
+Computing 8 coin placements for a 8x8 square...
+
+Generated 17143985/4426165368 grids...
+
+Found 0 unique solutions!
+```
