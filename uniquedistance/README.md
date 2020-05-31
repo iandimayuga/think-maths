@@ -30,6 +30,8 @@ Computing 6 coin placements for a 6x6 square...
 
 Generated 164623/1947792 grids...
 
+Found 2 unique solutions!
+
 [O][ ][ ][ ][ ][ ]
 [ ][ ][ ][ ][ ][ ]
 [O][ ][ ][ ][ ][ ]
@@ -51,6 +53,8 @@ And the single solution for 7 coins on a 7x7 square:
 Computing 7 coin placements for a 7x7 square...
 
 Generated 1678910/85900584 grids...
+
+Found 1 unique solutions!
 
 [O][ ][ ][ ][ ][ ][ ]
 [ ][O][ ][ ][ ][ ][ ]

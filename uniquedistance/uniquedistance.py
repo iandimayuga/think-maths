@@ -235,6 +235,8 @@ def main():
 
   print()
   print()
+  print("Found {} unique solutions!".format(len(successful_grids)))
+  print()
 
   for grid in successful_grids:
     print(grid)
